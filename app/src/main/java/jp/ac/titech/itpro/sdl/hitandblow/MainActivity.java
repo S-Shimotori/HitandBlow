@@ -29,21 +29,31 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private TextView messageView;
+    private static final String KEY_MESSAGE_VIEW_TEXT = "MainActivity.messageView.text";
     private TextView[] guessDigits;
+    private static final String KEY_GUESS_DIGITS_TEXTS = "MainActivity.guessDigits.texts";
     private ListView statusView;
     private Button[] numKeys;
     private Button ctrlButton;
+    private static final String KEY_CTRL_BUTTON_TEXT = "MainActivity.ctrlButton.text";
 
     private ArrayList<String> status;
+    private static final String KEY_STATUS = "MainActivity.status";
     private ArrayAdapter<String> statusAdapter;
 
     private int pos;
+    private static final String KEY_POS = "MainActivity.pos";
     private int ntrial;
+    private static final String KEY_N_TRIAL = "MainActivity.ntrial";
     private int[] problem;
+    private static final String KEY_PROBLEM = "MainActivity.problem";
     private int[] guess;
+    private static final String KEY_GUESS = "MainActivity.guess";
     private boolean game_started;
+    private static final String KEY_GAME_STARTED = "MainActivity.game_started";
 
     private Random rnd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,23 +62,49 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         messageView = (TextView) findViewById(R.id.message_view);
+        if (savedInstanceState != null) {
+            messageView.setText(savedInstanceState.getString(KEY_MESSAGE_VIEW_TEXT));
+        }
+
         guessDigits = new TextView[GUESS_DIGITS.length];
-        for (int i = 0; i < GUESS_DIGITS.length; i++)
+        for (int i = 0; i < GUESS_DIGITS.length; i++) {
             guessDigits[i] = (TextView) findViewById(GUESS_DIGITS[i]);
+            if (savedInstanceState != null) {
+                guessDigits[i].setText(savedInstanceState.getStringArrayList(KEY_GUESS_DIGITS_TEXTS).get(i));
+            }
+        }
         statusView = (ListView) findViewById(R.id.status_view);
         numKeys = new Button[NUM_KEYS.length];
         for (int i = 0; i < NUM_KEYS.length; i++)
             numKeys[i] = (Button) findViewById(NUM_KEYS[i]);
         ctrlButton = (Button) findViewById(R.id.control_button);
+        if (savedInstanceState != null) {
+            ctrlButton.setText(savedInstanceState.getString(KEY_CTRL_BUTTON_TEXT));
+        }
 
         status = new ArrayList<>();
+        if (savedInstanceState != null) {
+            status = savedInstanceState.getStringArrayList(KEY_STATUS);
+        }
         statusAdapter = new ArrayAdapter<>(this, R.layout.status_item, status);
         statusView.setAdapter(statusAdapter);
 
         rnd = new Random();
         problem = new int[N];
+        if (savedInstanceState != null) {
+            problem = savedInstanceState.getIntArray(KEY_PROBLEM);
+        }
         guess = new int[N];
-        initGame();
+        if (savedInstanceState != null) {
+            guess = savedInstanceState.getIntArray(KEY_GUESS);
+        }
+        if (savedInstanceState == null) {
+            initGame();
+        } else {
+            pos = savedInstanceState.getInt(KEY_POS);
+            ntrial = savedInstanceState.getInt(KEY_N_TRIAL);
+            game_started = savedInstanceState.getBoolean(KEY_GAME_STARTED);
+        }
     }
 
     public void onClickNumKey(View v) {
@@ -191,4 +227,31 @@ public class MainActivity extends AppCompatActivity {
         return v;
     }
 
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString(KEY_MESSAGE_VIEW_TEXT, messageView.getText().toString());
+
+        ArrayList<String> guessDigitsArray = new ArrayList();
+        for(TextView textView: guessDigits) {
+            guessDigitsArray.add(textView.getText().toString());
+        }
+        outState.putStringArrayList(KEY_GUESS_DIGITS_TEXTS, guessDigitsArray);
+
+        outState.putString(KEY_CTRL_BUTTON_TEXT, ctrlButton.getText().toString());
+
+        outState.putStringArrayList(KEY_STATUS, status);
+
+        outState.putInt(KEY_POS, pos);
+
+        outState.putInt(KEY_N_TRIAL, ntrial);
+
+        outState.putIntArray(KEY_PROBLEM, problem);
+
+        outState.putIntArray(KEY_GUESS, guess);
+
+        outState.putBoolean(KEY_GAME_STARTED, game_started);
+    }
 }
